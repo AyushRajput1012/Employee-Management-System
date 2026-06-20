@@ -217,10 +217,10 @@ export const normalizeTask = (task) => {
 
     return {
         ...task,
-        active: isCompleted || isFailed || isActive ? isActive && !isCompleted && !isFailed : false,
-        newTask: isCompleted || isFailed || isActive ? isNewTask && !isCompleted && !isFailed && !isActive : false,
+        active: !isCompleted && !isFailed && isActive,
+        newTask: !isCompleted && !isFailed && !isActive && isNewTask,
         completed: isCompleted,
-        failed: !isCompleted && isFailed,
+        failed: isFailed,
     }
 }
 
