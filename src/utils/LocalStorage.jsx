@@ -209,6 +209,67 @@ const admin = [{
     "password": "123"
 }];
 
+export const normalizeTask = (task) => {
+    const isCompleted = task?.completed === true
+    const isFailed = task?.failed === true
+    const isActive = task?.active === true
+    const isNewTask = task?.newTask === true
+
+    return {
+        ...task,
+        active: isCompleted || isFailed || isActive ? isActive && !isCompleted && !isFailed : false,
+        newTask: isCompleted || isFailed || isActive ? isNewTask && !isCompleted && !isFailed && !isActive : false,
+        completed: isCompleted,
+        failed: !isCompleted && isFailed,
+    }
+}
+
+export const getTaskCountsFromTasks = (tasks = []) => {
+    return tasks.reduce(
+        (counts, task) => {
+            const normalizedTask = normalizeTask(task)
+
+            if (normalizedTask.newTask) {
+                counts.newTask += 1
+            }
+
+            if (normalizedTask.active) {
+                counts.active += 1
+            }
+
+            if (normalizedTask.completed) {
+                counts.completed += 1
+            }
+
+            if (normalizedTask.failed) {
+                counts.failed += 1
+            }
+
+            return counts
+        },
+        {
+            newTask: 0,
+            active: 0,
+            completed: 0,
+            failed: 0,
+        }
+    )
+}
+
+export const normalizeEmployee = (employee) => {
+    const normalizedTasks = (employee?.tasks || []).map(normalizeTask)
+
+    return {
+        ...employee,
+        tasks: normalizedTasks,
+        taskCounts: getTaskCountsFromTasks(normalizedTasks),
+    }
+}
+
+export const normalizeEmployees = (employees = []) => {
+    return employees.map(normalizeEmployee)
+}
+
 export const setLocalStorage = ()=>{
     localStorage.setItem('employees',JSON.stringify(employees))
     localStorage.setItem('admin',JSON.stringify(admin))

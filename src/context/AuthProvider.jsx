@@ -1,6 +1,7 @@
 import React, {createContext, useEffect, useState} from 'react'
 import { getLocalStorage } from '../utils/LocalStorage'
 import {setLocalStorage} from '../utils/LocalStorage'
+import { normalizeEmployees } from '../utils/LocalStorage'
 
 export const AuthContext=createContext()
 
@@ -15,8 +16,14 @@ const AuthProvider = ({children}) => {
       setLocalStorage()
     }
     const {employees}=getLocalStorage()
-    setUserData(employees)
+    setUserData(normalizeEmployees(employees || []))
   },[])
+
+  useEffect(()=>{
+    if (userData) {
+      localStorage.setItem('employees', JSON.stringify(normalizeEmployees(userData)))
+    }
+  }, [userData])
 
   return (
     <div>

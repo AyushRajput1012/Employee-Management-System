@@ -1,6 +1,7 @@
 import React,{useState} from 'react'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import { getTaskCountsFromTasks, normalizeTask } from '../../utils/LocalStorage'
 
 const CreateTask = () => {
 
@@ -12,23 +13,34 @@ const CreateTask = () => {
     const [category, setCategory] = useState('')
     const [taskDescription, setTaskDescription] = useState('')
 
-    const[newtask, setNewTask] = useState({})
-
     const submitHandler =(e)=>{
         e.preventDefault();
-        setNewTask({taskTitle, date,  category, taskDescription, active:false, newTask:true, completed:false, failed:false})
+        const taskData = {
+            taskTitle,
+            taskDescription,
+            taskDate: date,
+            category,
+            active: false,
+            newTask: true,
+            completed: false,
+            failed: false,
+        }
 
-        const data = userData
-        
+        const updatedUsers = userData.map((elem)=>{
+            if(assignTo === elem.firstName){
+                const nextTasks = [...elem.tasks, normalizeTask(taskData)]
 
-        data.forEach(function(elem){
-            if(assignTo == elem.firstName){
-                elem.tasks.push(newtask)
-                elem.taskCounts.newTask=elem.taskCounts.newTask+1;
+                return {
+                    ...elem,
+                    tasks: nextTasks,
+                    taskCounts: getTaskCountsFromTasks(nextTasks),
+                }
             }
+
+            return elem
         })
-        setUserData(data)
-        console.log(data)
+
+        setUserData(updatedUsers)
 
         setTaskTitle('')
         setDate('')
